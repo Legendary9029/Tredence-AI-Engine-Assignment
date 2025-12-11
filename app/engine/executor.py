@@ -26,13 +26,11 @@ class Executor:
                 logs.append({"node": current, "error": str(e), "trace": traceback.format_exc()})
                 break
             logs.append({"node": current, "state": state.data.copy()})
-            # custom loop behavior if defined by workflow
             if current == "suggest" and state.data.get("quality_score", 100) < state.data.get("threshold", 100):
                 current = "issues"
             else:
                 current = graph.next_node(current, state)
             steps += 1
 
-        # persist final state under executor's run_id for internal audit (optional)
         save_run(run_id, {"status": "finished", "state": state.data, "logs": logs})
         return run_id, state, logs
